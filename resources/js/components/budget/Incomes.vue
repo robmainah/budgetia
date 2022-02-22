@@ -16,41 +16,44 @@
                                 </button>
                             </div>
                         </div>
-                        <!-- /.card-header -->
                         <div class="card-body table-responsive p-0">
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
-                                        <th><Source></Source></th>
+                                        <th>#</th>
+                                        <th>Source</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                        <th>Category</th>
                                         <th>Description</th>
-                                        <th>Created</th>
+                                        <th>Updated</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="category in categories.data" :key="category.id">
-
-                                        <td>{{category.id}}</td>
-                                        <td class="text-capitalize">{{category.name}}</td>
-                                        <td>{{category.description}}</td>
-                                        <td>{{category.created_at}}</td>
-                                        <td>
-
-                                            <a href="#" @click="editModal(category)">
-                                                <i class="fa fa-edit blue"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
+                                    <template v-if="Object.keys(incomes).length">
+                                        <tr v-for="(income, index) in incomes.incomes.data" :key="income.id">
+                                            <td>{{ index + 1 }}</td>
+                                            <td>{{income.source}}</td>
+                                            <td>{{income.amount}}</td>
+                                            <td>{{income.date}}</td>
+                                            <td>{{income.category.title}}</td>
+                                            <td>{{income.description}}</td>
+                                            <td>{{income.updated_at}}</td>
+                                            <td>
+                                                <a href="#" @click="editModal(income)">
+                                                    <i class="fa fa-edit blue"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </template>
                                 </tbody>
                             </table>
                         </div>
-                        <!-- /.card-body -->
                         <div class="card-footer">
-                            <pagination :data="categories" @pagination-change-page="getResults"></pagination>
+                            <pagination :data="incomes" @pagination-change-page="getResults"></pagination>
                         </div>
                     </div>
-                    <!-- /.card -->
                 </div>
             </div>
 
@@ -59,7 +62,6 @@
                 <not-found></not-found>
             </div>
 
-            <!-- Modal -->
             <div class="modal fade" id="addNew" tabindex="-1" role="dialog" aria-labelledby="addNew" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -71,126 +73,143 @@
                             </button>
                         </div>
 
-                        <!-- <form @submit.prevent="createUser"> -->
-
-                            <form @submit.prevent="editmode ? updateCategory() : createCategory()">
-                                <div class="modal-body">
-                                    <div class="form-group">
-                                        <label>Name</label>
-                                        <input v-model="form.name" type="text" name="name"
-                                        class="form-control" :class="{ 'is-invalid': form.errors.has('name') }">
-                                        <has-error :form="form" field="name"></has-error>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Description</label>
-                                        <input v-model="form.description" type="text" name="description"
-                                        class="form-control" :class="{ 'is-invalid': form.errors.has('description') }">
-                                        <has-error :form="form" field="description"></has-error>
-                                    </div>
+                        <form @submit.prevent="editmode ? updateCategory() : createIncome()">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>Source</label>
+                                    <input v-model="form.source" type="text" name="source"
+                                    class="form-control" :class="{ 'is-invalid': form.errors.has('source') }">
+                                    <has-error :form="form" field="source"></has-error>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button v-show="editmode" type="submit" class="btn btn-success">Update</button>
-                                    <button v-show="!editmode" type="submit" class="btn btn-primary">Create</button>
+                                <div class="form-group">
+                                    <label>Amount</label>
+                                    <input v-model="form.amount" type="text" name="amount"
+                                    class="form-control" :class="{ 'is-invalid': form.errors.has('amount') }">
+                                    <has-error :form="form" field="amount"></has-error>
                                 </div>
-                            </form>
-                        </div>
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input v-model="form.date" type="date" name="date"
+                                    class="form-control" :class="{ 'is-invalid': form.errors.has('date') }">
+                                    <has-error :form="form" field="date"></has-error>
+                                </div>
+                                <div class="form-group">
+                                    <label>Category</label>
+                                    <select v-model="form.category_id" type="text" name="category_id"
+                                    class="form-control" :class="{ 'is-invalid': form.errors.has('category_id') }">
+                                        <option value="" selected disabled>Select Category</option>
+                                        <option v-for="category in incomes.categories" :value="category.id" :key="category.id">{{ category.title }}</option>
+                                    </select>
+                                    <has-error :form="form" field="category_id"></has-error>
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea v-model="form.description" type="text" name="description" rows="5"
+                                    class="form-control" :class="{ 'is-invalid': form.errors.has('description') }"></textarea>
+                                    <has-error :form="form" field="description"></has-error>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button v-show="editmode" type="submit" class="btn btn-success">Update</button>
+                                <button v-show="!editmode" type="submit" class="btn btn-primary">Create</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
-        </section>
-    </template>
+        </div>
+    </section>
+</template>
 
-    <script>
-        export default {
-            data () {
-                return {
-                    editmode: false,
-                    categories : {},
-                    form: new Form({
-                        id : '',
-                        name: '',
-                        description: '',
-                    })
-                }
-            },
-            methods: {
+<script>
+    export default {
+        data () {
+            return {
+                editmode: false,
+                incomes : {},
+                form: new Form({
+                    source: '',
+                    amount: '',
+                    date: '',
+                    category_id : '',
+                    description: '',
+                })
+            }
+        },
+        methods: {
 
-                getResults(page = 1) {
-
-                    this.$Progress.start();
-
-                    axios.get('/api/category?page=' + page).then(({ data }) => (this.categories = data.data));
-
-                    this.$Progress.finish();
-                },
-                updateCategory(){
-                    this.$Progress.start();
-                    this.form.put('/api/category/'+this.form.id)
-                    .then((response) => {
-                        $('#addNew').modal('hide');
-                        Toast.fire({
-                            icon: 'success',
-                            title: response.data.message
-                        });
-                        this.$Progress.finish();
-
-                        this.loadCategories();
-                    })
-                    .catch(() => {
-                        this.$Progress.fail();
-                    });
-
-                },
-                editModal(category){
-                    this.editmode = true;
-                    this.form.reset();
-                    $('#addNew').modal('show');
-                    this.form.fill(category);
-                },
-                newModal(){
-                    this.editmode = false;
-                    this.form.reset();
-                    $('#addNew').modal('show');
-                },
-
-                loadCategories(){
-                    if(this.$gate.isAdmin()){
-                        axios.get("/api/category").then(({ data }) => (this.categories = data.data));
-                    }
-                },
-
-                createCategory(){
-
-                    this.form.post('/api/category')
-                    .then((response)=>{
-                        $('#addNew').modal('hide');
-
-                        Toast.fire({
-                            icon: 'success',
-                            title: response.data.message
-                        });
-
-                        this.$Progress.finish();
-                        this.loadCategories();
-                    })
-                    .catch(()=>{
-                        Toast.fire({
-                            icon: 'error',
-                            title: 'Some error occured! Please try again'
-                        });
-                    })
-                }
-
-            },
-            mounted() {
-                console.log('Component mounted.')
-            },
-            created() {
+            getResults(page = 1) {
 
                 this.$Progress.start();
-                this.loadCategories();
+
+                axios.get('/api/income?page=' + page).then(({ data }) => (this.incomes = data.data));
+
                 this.$Progress.finish();
+            },
+            updateCategory(){
+                this.$Progress.start();
+                this.form.put('/api/income/'+this.form.id)
+                .then((response) => {
+                    $('#addNew').modal('hide');
+                    Toast.fire({
+                        icon: 'success',
+                        title: response.data.message
+                    });
+                    this.$Progress.finish();
+
+                    this.loadincomes();
+                })
+                .catch(() => {
+                    this.$Progress.fail();
+                });
+
+            },
+            editModal(income){
+                this.editmode = true;
+                this.form.reset();
+                $('#addNew').modal('show');
+                this.form.fill(income);
+            },
+            newModal(){
+                this.editmode = false;
+                this.form.reset();
+                $('#addNew').modal('show');
+            },
+            loadincomes(){
+                if(this.$gate.isAdmin()){
+                    axios.get("/api/income").then(({ data }) => (this.incomes = data.data));
+                }
+            },
+            createIncome(){
+                this.form.post('/api/income')
+                .then((response)=>{
+                    $('#addNew').modal('hide');
+
+                    Toast.fire({
+                        icon: 'success',
+                        title: response.data.message
+                    });
+
+                    this.$Progress.finish();
+                    this.loadincomes();
+                })
+                .catch(()=>{
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Some error occured! Please try again'
+                    });
+                })
             }
+        },
+        mounted() {
+            // console.log('Component mounted.')
+        },
+        created() {
+
+            this.$Progress.start();
+            this.loadincomes();
+            this.$Progress.finish();
         }
-    </script>
+    }
+</script>

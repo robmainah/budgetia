@@ -36,8 +36,10 @@ Route::namespace('App\\Http\\Controllers\\API\V1')->group(function () {
 
     Route::apiResources([
         'user' => 'UserController',
-        'product' => 'ProductController',
+        // 'product' => 'ProductController',
         'category' => 'CategoryController',
-        'tag' => 'TagController',
+        'income'   => 'IncomeController',
+        'expense'  => 'ExpenseController',
+        // 'tag' => 'TagController',
     ]);
 });
